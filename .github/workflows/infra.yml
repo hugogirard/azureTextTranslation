@@ -1,0 +1,52 @@
+name: Create Azure Resources
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "bicep/**/**.bicep"
+      - ".github/workflows/infra.yml"    
+  workflow_dispatch:    
+
+jobs:
+  create-azure-resources:
+
+    env:
+      DEPLOYMENT_NAME: cognitive-deployment
+      LOCATION: 'canadacentral'
+      RESOURCE_GROUP_NAME: 'rg-text-translator-demo'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      
+      - uses: actions/checkout@v2
+
+      - name: Validate that bicep builds
+        run: az bicep build -f main.bicep
+        working-directory: ./bicep
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Convert to ARM
+        run: |
+          bicep build ./bicep/main.bicep 
+
+      - name: deploy
+        id: createResources
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          scope: subscription
+          region: ${{ env.LOCATION }}
+          deploymentName:  ${{ env.DEPLOYMENT_NAME }}
+          template: ./bicep/main.json
+          parameters: LOCATION=${{ env.LOCATION }} resourceGroupName=${{ env.RESOURCE_GROUP_NAME }}
+                        
+
+
+    
