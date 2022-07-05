@@ -1,4 +1,3 @@
-
 /*
 * Notice: Any links, references, or attachments that contain sample scripts, code, or commands comes with the following notification.
 *
@@ -19,75 +18,33 @@
 * DEMO POC - "AS IS"
 */
 
-
 param location string
 param suffix string
 
-resource storageAccountDocument 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: 'strd${suffix}'
+var appInsightsName = 'appi-${suffix}'
+
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
+  name: 'log-${suffix}'
   location: location
-  sku: {
-    name: 'Standard_LRS'    
-  }
-  tags: {
-    'function': 'documents'
-  }
-  kind: 'StorageV2'
   properties: {
-    supportsHttpsTrafficOnly: true
-    encryption: {
-      services: {
-        file: {
-          keyType: 'Account'
-          enabled: true
-        }
-        blob: {
-          keyType: 'Account'
-          enabled: true
-        }
-      }
-      keySource: 'Microsoft.Storage'
+    sku: {
+      name: 'PerGB2018'
     }
-    accessTier: 'Hot'
   }
 }
 
-resource storageFunction 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: 'strd${suffix}'
+resource appInsights 'Microsoft.Insights/components@2020-02-02-preview' = {
+  name: appInsightsName
   location: location
-  sku: {
-    name: 'Standard_LRS'    
-  }
-  tags: {
-    'function': 'azurefunction'
-  }
-  kind: 'StorageV2'
+  kind: 'web'
   properties: {
-    supportsHttpsTrafficOnly: true
-    encryption: {
-      services: {
-        file: {
-          keyType: 'Account'
-          enabled: true
-        }
-        blob: {
-          keyType: 'Account'
-          enabled: true
-        }
-      }
-      keySource: 'Microsoft.Storage'
-    }
-    accessTier: 'Hot'
+    Application_Type: 'web'
+    WorkspaceResourceId: workspace.id
+    publicNetworkAccessForIngestion: 'Enabled'
+    publicNetworkAccessForQuery: 'Enabled'
   }
 }
 
-resource containerDocuments 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = {
-  name: '${storageAccountDocument.name}/default/documents'
-  properties: {
-    publicAccess: 'None'
-  }
-}
-
-output strDocumentName string = storageAccountDocument.name
-output strFunctionName string = storageFunction.name
-
+output appInsightKey string = appInsights.properties.InstrumentationKey
+output appInsightCnxString string = appInsights.properties.ConnectionString
+output appInsightName string = appInsights.name

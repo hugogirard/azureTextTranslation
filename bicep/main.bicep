@@ -50,3 +50,24 @@ module translator 'modules/cognitive/translator.bicep' = {
     suffix: rgNameSuffix
   }
 }
+
+module insight 'modules/insight/insight.bicep' = {
+  scope: resourceGroup(rg.name)
+  name: 'insights'
+  params: {
+    location: location
+    suffix: rgNameSuffix
+  }
+}
+
+module function 'modules/function/function.bicep' = {
+  scope: resourceGroup(rg.name)
+  name: 'function'
+  params: {
+    appInsightName: insight.outputs.appInsightName
+    location: location
+    strAccountName: str.outputs.strFunctionName
+    strDocumentAccountName: str.outputs.strDocumentName
+    suffix: rgNameSuffix
+  }
+}
