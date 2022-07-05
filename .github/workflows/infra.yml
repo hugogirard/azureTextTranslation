@@ -45,7 +45,7 @@ jobs:
           region: ${{ env.LOCATION }}
           deploymentName:  ${{ env.DEPLOYMENT_NAME }}
           template: ./bicep/main.json
-          parameters: LOCATION=${{ env.LOCATION }} resourceGroupName=${{ env.RESOURCE_GROUP_NAME }}
+          parameters: location=${{ env.LOCATION }} resourceGroupName=${{ env.RESOURCE_GROUP_NAME }}
                         
 
 
