@@ -53,7 +53,7 @@ resource storageAccountDocument 'Microsoft.Storage/storageAccounts@2021-04-01' =
 }
 
 resource storageFunction 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: 'strd${suffix}'
+  name: 'strf${suffix}'
   location: location
   sku: {
     name: 'Standard_LRS'    
