@@ -42,3 +42,11 @@ module str 'modules/storage/storage.bicep' = {
   }
 }
 
+module translator 'modules/cognitive/translator.bicep' = {
+  scope: resourceGroup(rg.name)
+  name: 'translator'
+  params: {
+    location: location
+    suffix: rgNameSuffix
+  }
+}
